@@ -43,7 +43,7 @@ namespace JsonRpcRipple
             }
 
             string s = JsonConvert.SerializeObject(joe);
-            // serialize json for the request
+            // serialize json for the requestf
             byte[] byteArray = Encoding.UTF8.GetBytes(s);
             webRequest.ContentLength = byteArray.Length;
 
