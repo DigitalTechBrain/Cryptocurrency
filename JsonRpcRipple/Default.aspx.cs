@@ -16,18 +16,19 @@ namespace JsonRpcRipple
     {
         public JObject InvokeMethod(string a_sMethod, params object[] a_params)
         {
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(@"https://s.altnet.rippletest.net:51234");
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(@"http://s1.ripple.com:51234/");
             // webRequest.Credentials = Credentials;
 
             webRequest.ContentType = "application/json-rpc";
             webRequest.Method = "POST";
 
             JObject joe = new JObject();
-            joe["jsonrpc"] = "1.0";
-            joe["id"] = "1";
             joe["command"] = a_sMethod;
-            joe["tx_hash"] = "E08D6E9754025BA2534A78707605E0601F03ACE063687A0CA1BDDACFCD1698C7";
-            joe["ledger_index"] = "348734";
+            //joe["id"] = "1";
+
+            joe["account"] = "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59";
+            joe["strict"] = "true";
+            joe["ledger_index"] = "validated";
 
             if (a_params != null)
             {
@@ -96,7 +97,7 @@ namespace JsonRpcRipple
         }
         protected void Page_Load(object sender, EventArgs e)
         {
-            var ret = InvokeMethod("transaction_entry", "index");
+            var ret = InvokeMethod("account_info", "index");
         }
     }
 }
