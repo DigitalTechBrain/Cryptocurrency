@@ -16,26 +16,20 @@ namespace BitcoinRpc
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            object[] index = null;
-            var ret = InvokeMethod("server_info", index);
-            
-                Response.Write(ret);
-           
-        }
 
-        public JObject InvokeMethod(string a_sMethod, params object[] a_params)
-        {
+            object[] a_params = null;
+
             string url = @"http://s1.ripple.com:51234";
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
-           // webRequest.Credentials = Credentials;
+            // webRequest.Credentials = Credentials;
 
             webRequest.ContentType = "application/json-rpc";
             webRequest.Method = "POST";
 
             JObject joe = new JObject();
-            joe["id"] = 1 ;
-            joe["command"] = a_sMethod;
-            
+            joe["id"] = 1;
+            joe["command"] = "server_info";
+
 
             //joe["id"] = "1";
             // joe["method"] = a_sMethod;
@@ -83,7 +77,8 @@ namespace BitcoinRpc
                     {
                         using (StreamReader sr = new StreamReader(str))
                         {
-                            return JsonConvert.DeserializeObject<JObject>(sr.ReadToEnd());
+                            // return JsonConvert.DeserializeObject<JObject>(sr.ReadToEnd());
+                            Response.Write(JsonConvert.DeserializeObject<JObject>(sr.ReadToEnd()));
                         }
                     }
                 }
@@ -96,7 +91,8 @@ namespace BitcoinRpc
                     using (StreamReader sr = new StreamReader(str))
                     {
                         var tempRet = JsonConvert.DeserializeObject<JObject>(sr.ReadToEnd());
-                        return tempRet;
+                        // return tempRet;
+                        Response.Write(tempRet);
                     }
                 }
 
@@ -106,7 +102,10 @@ namespace BitcoinRpc
 
                 throw;
             }
-        }
+        
+    }
+
+        
     }
 
 }
