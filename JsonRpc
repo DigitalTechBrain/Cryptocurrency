@@ -1,0 +1,112 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace BitcoinRpc
+{
+    public partial class Default : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            object[] index = null;
+            var ret = InvokeMethod("server_info", index);
+            
+                Response.Write(ret);
+           
+        }
+
+        public JObject InvokeMethod(string a_sMethod, params object[] a_params)
+        {
+            string url = @"http://s1.ripple.com:51234";
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+           // webRequest.Credentials = Credentials;
+
+            webRequest.ContentType = "application/json-rpc";
+            webRequest.Method = "POST";
+
+            JObject joe = new JObject();
+            joe["id"] = 1 ;
+            joe["command"] = a_sMethod;
+            
+
+            //joe["id"] = "1";
+            // joe["method"] = a_sMethod;
+            // joe["account"] = "r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59";
+            // joe["strict"] = true;
+            //  joe["ledger_index"] = "validated";
+
+            if (a_params != null)
+            {
+                if (a_params.Length > 0)
+                {
+                    JArray props = new JArray();
+                    foreach (var p in a_params)
+                    {
+                        props.Add(p);
+                    }
+                    joe.Add(new JProperty("params", props));
+                }
+            }
+
+            string s = JsonConvert.SerializeObject(joe);
+            // serialize json for the request
+            byte[] byteArray = Encoding.UTF8.GetBytes(s);
+            webRequest.ContentLength = byteArray.Length;
+
+            try
+            {
+                using (Stream dataStream = webRequest.GetRequestStream())
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                }
+            }
+            catch (WebException we)
+            {
+                //inner exception is socket
+                //{"A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 23.23.246.5:8332"}
+                throw;
+            }
+            WebResponse webResponse = null;
+            try
+            {
+                using (webResponse = webRequest.GetResponse())
+                {
+                    using (Stream str = webResponse.GetResponseStream())
+                    {
+                        using (StreamReader sr = new StreamReader(str))
+                        {
+                            return JsonConvert.DeserializeObject<JObject>(sr.ReadToEnd());
+                        }
+                    }
+                }
+            }
+            catch (WebException webex)
+            {
+
+                using (Stream str = webex.Response.GetResponseStream())
+                {
+                    using (StreamReader sr = new StreamReader(str))
+                    {
+                        var tempRet = JsonConvert.DeserializeObject<JObject>(sr.ReadToEnd());
+                        return tempRet;
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
+
+}
