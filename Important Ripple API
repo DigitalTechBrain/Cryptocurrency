@@ -1,0 +1,27 @@
+Balance
+----------------------
+https://data.ripple.com/v2/accounts/rfginNsDt73fZt
+
+zp858dT6Y6U67Y1QB7GV/balances
+
+----------------------Transaction Detail----
+https://data.ripple.com/v2/accounts/rfginNsDt73fZt
+
+zp858dT6Y6U67Y1QB7GV/transactions
+-------------------
+
+----------Balance Change---------------
+https://data.ripple.com/v2/accounts/rfginNsDt73fZt
+
+zp858dT6Y6U67Y1QB7GV/balance_changes
+------------------------------------
+
+
+Live Price float Value
+--------------
+https://min-api.cryptocompare.com/data/price?
+
+fsym=XRP&tsyms=XRP,INR,EUR
+-----------------------------------------
+
+
