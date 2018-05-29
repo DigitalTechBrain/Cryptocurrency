@@ -1,0 +1,91 @@
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Newtonsoft.Json;
+using System.Data.SqlClient;
+using System.Data;
+using System.Web.Configuration;
+
+namespace WebApplicationToJavaScript
+{
+    public partial class DeseriallizationDemo : System.Web.UI.Page
+    {
+        SqlConnection con = new SqlConnection("Server=JACK-PC;UID=sa;Password=1234;Database=testing");
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            var request = (HttpWebRequest)WebRequest.Create("https://data.ripple.com/v2/accounts/rfginNsDt73fZtzp858dT6Y6U67Y1QB7GV/transactions?type=Payment&result=tesSUCCESS&limit=10000");
+
+            request.Method = "GET";
+            request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+
+            var response = (HttpWebResponse)request.GetResponse();
+            
+
+            string content = string.Empty;
+            using (var stream = response.GetResponseStream())
+            {
+                using (var sr = new StreamReader(stream))
+                {
+                    content = sr.ReadToEnd();
+                    
+                    var dt = JsonConvert.DeserializeObject<dynamic>(content);
+
+                    try
+                    { 
+                        for(int i=0;i<=100000;i++)
+                        {
+                            string desttag = dt.transactions[i].tx.DestinationTag;
+                            string acnt = dt.transactions[i].tx.Account;
+                            string dstnatn = dt.transactions[i].tx.Destination;
+                            string amnt = dt.transactions[i].tx.Amount;
+                            string dte = dt.transactions[i].date;
+
+
+                            SqlCommand cmd = new SqlCommand("select * from rippledt where DestinationTag like '" + desttag + "' and date = '" + dte + "';");
+                            cmd.Connection = con;
+                            con.Open();
+
+                            DataSet ds = new DataSet();
+                            SqlDataAdapter da = new SqlDataAdapter(cmd);
+                            da.Fill(ds);
+                            con.Close();
+
+                            bool loginSuccessful = ((ds.Tables.Count > 0) && (ds.Tables[0].Rows.Count > 0));
+
+                            if (loginSuccessful)
+                            {
+                                
+                            }
+                            else
+                            {
+                                string str1 = "insert into rippledt values('jack','" + desttag + "','" + acnt + "','" + dstnatn + "','" + amnt + "','" + dte + "')";
+                                SqlCommand cmd2 = new SqlCommand(str1, con);
+                                con.Open();
+                                cmd2.ExecuteNonQuery();
+                                con.Close();
+
+                            }
+
+                        }
+                    }
+
+                    catch
+                    {
+                        Response.Write(DateTime.Now);
+
+                    }
+
+                }
+
+
+            }
+        }
+    }
+}
