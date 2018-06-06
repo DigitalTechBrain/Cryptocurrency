@@ -1,0 +1,114 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace JsonRpcRipple
+{
+   
+    public partial class Default : System.Web.UI.Page
+    {
+
+        public JObject InvokeMethod()
+        {
+           // HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create("http://s1.ripple.com:51234/");
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create("https://s.altnet.rippletest.net:51234/");
+
+            webRequest.ContentType = "application/json";
+            webRequest.Method = "POST";
+
+
+            string amnt = "100000000";
+            string json = @"
+            {
+    'method': 'submit',
+    'params': [{
+        'secret': 'snL7AcZbKsHm1H7VjeZg7gNS55Xkd',
+        'tx_json': {
+            'Account': 'rHSqhmuevNJg9ZYpspYHNnQDxraozuCk5p',
+            'TransactionType': 'PaymentChannelCreate',
+            'Amount': '" + amnt + @"',
+            'Destination': 'rD6CGd2uL9DZUVDNghMqAfr8doTzKbEtGA',
+            'SettleDelay': 86400,
+            'PublicKey': '023693F15967AE357D0327974AD46FE3C127113B1110D6044FD41E723689F81CC6',
+            'DestinationTag': 20170428
+        },
+        'fee_mult_max': 1000
+    }]
+
+            }";
+        
+
+            JObject joe = JObject.Parse(json);
+            string s = JsonConvert.SerializeObject(joe);
+            
+            
+            
+            byte[] byteArray = Encoding.UTF8.GetBytes(s);
+            webRequest.ContentLength = byteArray.Length;
+
+            try
+            {
+                using (Stream dataStream = webRequest.GetRequestStream())
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                }
+            }
+            catch (WebException we)
+            {
+               
+                throw we;
+            }
+            
+            WebResponse webResponse = null;
+                try
+               {
+                    using (webResponse = webRequest.GetResponse())
+                    {
+                        using (Stream str = webResponse.GetResponseStream())
+                        {
+                            using (StreamReader sr = new StreamReader(str))
+                            {
+                        return JsonConvert.DeserializeObject<JObject>(sr.ReadToEnd());
+                                                   }
+                        }
+                    }
+                }
+                catch (WebException webex)
+                {
+
+                    using (Stream str = webex.Response.GetResponseStream())
+                    {
+                        using (StreamReader sr = new StreamReader(str))
+                        {
+                            var tempRet = JsonConvert.DeserializeObject<JObject>(sr.ReadToEnd());
+                            return tempRet;
+                        }
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+        }
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+
+            var ret = InvokeMethod();
+            Response.Write(ret);
+            
+        }
+           
+    }
+ }
