@@ -24,8 +24,12 @@ namespace JsonRpcRipple
             webRequest.ContentType = "application/json";
             webRequest.Method = "POST";
 
+            string dt = "10007";
+            string Uamnt = "100";
+            string Exzero = "000000";
 
-            string amnt = "100000000";
+
+            string amnt = Uamnt + Exzero;
             string json = @"
             {
     'method': 'submit',
@@ -38,7 +42,7 @@ namespace JsonRpcRipple
             'Destination': 'rD6CGd2uL9DZUVDNghMqAfr8doTzKbEtGA',
             'SettleDelay': 86400,
             'PublicKey': '023693F15967AE357D0327974AD46FE3C127113B1110D6044FD41E723689F81CC6',
-            'DestinationTag': 20170428
+            'DestinationTag': " + dt + @",
         },
         'fee_mult_max': 1000
     }]
@@ -105,9 +109,29 @@ namespace JsonRpcRipple
         protected void Page_Load(object sender, EventArgs e)
         {
 
-            var ret = InvokeMethod();
-            Response.Write(ret);
+            var request = InvokeMethod();
+           // Response.Write(request);
             
+            
+                dynamic data = JObject.Parse(request.ToString());
+                Response.Write("Result : - \t");
+                Response.Write("\r\n");
+                Response.Write(data.result.engine_result);
+                Response.Write("\nAccount : - \t");
+                Response.Write("\r\n");
+                Response.Write(data.result.tx_json.Account);
+                Response.Write("\nAmount : - \t");
+                Response.Write("\r\n");
+                Response.Write(data.result.tx_json.Amount);
+                Response.Write("\nDestination Account : - \t");
+                Response.Write("\r\n");
+                Response.Write(data.result.tx_json.Destination);
+                Response.Write("\nDestination Tag : - \t");
+                Response.Write("\r\n");
+                Response.Write(data.result.tx_json.DestinationTag);
+                Response.Write("\nFee : - \t");
+                Response.Write(data.result.tx_json.Fee);
+
         }
            
     }
