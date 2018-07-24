@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.js"></script>
+  <script src="ripple-0.19.0-min.js"></script>
+  <title>Ripple</title>
+  </head>
+<body>
+<div id = "demo" style = "color:Green;">
+
+</div>
+<script>
+    console.log(ripple);
+    //var api = new ripple.RippleAPI({server:'wss://s1.ripple.com/'});
+    var api = new ripple.RippleAPI({server:'wss://s.altnet.rippletest.net:51233'});
+    api.connect().then(function() {
+       
+        const address = 'rLRiVSAPfnmDoQe8y6VM57XHwkJu9VPnHS'; //Test Address
+        const secret = 'shHsxDAx73ZTyFGpVxMJFaFnbGJAS';    // Test Address
+
+        const instructions = {maxLedgerVersionOffset: 5};
+
+const payment = {
+  source: {
+    address: address,
+    maxAmount: {
+      value: '0.01',
+      currency: 'XRP'
+    }
+  },
+  destination: {
+    address: 'rDe3wB5oUairVejDiqCg8p2hc7ExPpNmFs',
+	tag: 8779,
+    amount: {
+      value: '50',
+      currency: 'XRP'
+    }
+  }
+};
+
+function quit(message) {
+  console.log(message);
+  process.exit(0);
+}
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+api.connect().then(() => {
+  console.log('Connected...');
+  return api.preparePayment(address, payment, instructions).then(prepared => {
+    console.log('Payment transaction prepared...');
+    const {signedTransaction} = api.sign(prepared.txJSON, secret);
+    console.log('Payment transaction signed...');
+    api.submit(signedTransaction).then(quit, fail);
+  });
+}).catch(fail);
+	
+	 });
+  </script>
+
+  
+</body>
+</html>
